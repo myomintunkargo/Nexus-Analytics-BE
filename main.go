@@ -198,6 +198,7 @@ func handleJanuary(month, year int, order *deliveryOrder) bool{
 	return false
 }
 
+//function to retrieve all orders from past N months -- for now only assumed past 6 months
 func getPastMonthsDeliveryOrder(monthsPlaceholder string)  (requiredOrders []deliveryOrder){
 
 	// months, _ := strconv.Atoi(monthsPlaceholder)
@@ -245,18 +246,53 @@ func getPastMonthsDeliveryOrder(monthsPlaceholder string)  (requiredOrders []del
 		
 	}
 
-func pastNMonths(c *gin.Context){ //retrieve all orders from past N months -- for now only 6
+//GET request function to retrieve number of orders from past N months -- for now only assumed past 6 months
+func pastNMonths(c *gin.Context){
 	months := c.Param("months")
 	orders:= getPastMonthsDeliveryOrder(months)
 
-	c.IndentedJSON(http.StatusOK, orders)
+	monthlyOrdersMap := make(map[string]int) // map monthYear to total number of orders in that month
+
+	for _, order := range orders{
+		var monthYearRepresentation = fmt.Sprintf("%v-%v", order.Month, order.Year)
+		var monthYearOrders = fmt.Sprintf("%v", monthYearRepresentation)
+		monthlyOrdersMap[monthYearOrders] += 1
+	}
+
+	c.IndentedJSON(http.StatusOK, monthlyOrdersMap)
+}
+
+
+//GET request function to retrieve average stops of all orders from past N months -- for now only assumed past 6 months
+func averagePastNMonthsNumberOfStops(c *gin.Context){ 
+	months := c.Param("months")
+	orders := getPastMonthsDeliveryOrder(months)
+
+	monthlyOrdersMap := make(map[string]int) // map monthYear to total number of orders in that month
+	monthlyStopsMap := make(map[string]int) // map monthYear to total number of stops in that month
+	averageStopsMap := make(map[string]float32) //average per month
+
+	for _, order := range orders{
+		var monthYearRepresentation = fmt.Sprintf("%v-%v", order.Month, order.Year)
+		var monthYearOrders = fmt.Sprintf("%v", monthYearRepresentation)
+		var monthYearStops = fmt.Sprintf("%v", monthYearRepresentation)
+		monthlyOrdersMap[monthYearOrders] += 1
+		numberOfStops, _ := strconv.Atoi(order.NumStops)
+		monthlyStopsMap[monthYearStops] += numberOfStops
+	}
+
+	for monthYear := range monthlyOrdersMap{
+		averageStopsMap[monthYear] = float32(monthlyStopsMap[monthYear]) /float32(monthlyOrdersMap[monthYear])
+	}
+
+	c.IndentedJSON(http.StatusOK, averageStopsMap)
 }
 
 func main() {
 
-	// fmt.Print(getPastMonthsDeliveryOrder(""))
 	router := gin.Default()
 	router.GET("/api/orders/multistops/:months", pastNMonths)
+	router.GET("/api/orders/multistops/average/:months", averagePastNMonthsNumberOfStops)
 	router.Run("localhost:5000")
 
  }
