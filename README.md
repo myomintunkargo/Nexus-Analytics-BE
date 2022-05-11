@@ -12,10 +12,13 @@ Dependencies Used:
 * [pq](https://github.com/lib/pq) (go get github.com/lib/pq)
 
 ## Api Endpoints 
-
-GET("/api/orders/multistops/") - get total number of DOs in past *6 months*
-Required Params: None
-Sample Response
+ 
+### GET total number of DOs in past *6 months*
+* **URL** : /api/orders/multistops/ - 
+* **Method** :  `GET`
+* **Required Params** : None
+* **Sample Response** :
+```    
     { 
     "1-2022": 936, 
     "11-2021": 1029, 
@@ -24,17 +27,22 @@ Sample Response
     "3-2022": 2424, 
     "4-2022": 10475 
     } 
-GET("/api/orders/multistops/average/") - get average number of stops per DO in past *6 months*
-Required Params: None
-Sample Response
-    { 
+ ```
+    
+### GET average number of stops per DO in past *6 months*
+* **URL** : /api/orders/multistops/average/ - 
+* **Method** : `GET`
+* **Required Params**: None
+* **Sample Response** :
+```
+{ 
     "1-2022": 3.474359, 
     "11-2021": 2.1788144, 
     "12-2021": 2.2917197, 
     "2-2022": 7.311287, 
     "3-2022": 16.955858, 
     "4-2022": 4.1030073 
-     } 
-
+}
+```
 
 
