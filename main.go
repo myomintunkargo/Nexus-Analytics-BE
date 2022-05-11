@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"net/http"
+
 	_ "github.com/lib/pq"
 )
 
@@ -27,6 +28,7 @@ func dbConnection() []deliveryOrder{
 	// Loading environment variables from local.env file
 	err1 := godotenv.Load("local.env")
 	if err1 != nil {
+		
 		log.Fatalf("Some error occured. Err: %s", err1)
 	}
 	dialect := os.Getenv("DIALECT")
@@ -47,6 +49,8 @@ func dbConnection() []deliveryOrder{
 	if err != nil {
 		log.Fatal(err)
 	}
+	
+	
 
 	// Declare variables for query responses 
 	var (
