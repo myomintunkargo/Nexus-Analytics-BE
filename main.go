@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"net/http"
+
 	_ "github.com/lib/pq"
 )
 
@@ -199,7 +200,7 @@ func handleJanuary(month, year int, order *deliveryOrder) bool{
 }
 
 //function to retrieve all orders from past N months -- for now only assumed past 6 months
-func getPastMonthsDeliveryOrder(monthsPlaceholder string)  (requiredOrders []deliveryOrder){
+func getPastMonthsDeliveryOrder()  (requiredOrders []deliveryOrder){
 
 	// months, _ := strconv.Atoi(monthsPlaceholder)
 	t := time.Now()
@@ -248,8 +249,8 @@ func getPastMonthsDeliveryOrder(monthsPlaceholder string)  (requiredOrders []del
 
 //GET request function to retrieve number of orders from past N months -- for now only assumed past 6 months
 func pastNMonths(c *gin.Context){
-	months := c.Param("months")
-	orders:= getPastMonthsDeliveryOrder(months)
+	// months := c.Param("months")
+	orders:= getPastMonthsDeliveryOrder()
 
 	monthlyOrdersMap := make(map[string]int) // map monthYear to total number of orders in that month
 
@@ -265,8 +266,8 @@ func pastNMonths(c *gin.Context){
 
 //GET request function to retrieve average stops of all orders from past N months -- for now only assumed past 6 months
 func averagePastNMonthsNumberOfStops(c *gin.Context){ 
-	months := c.Param("months")
-	orders := getPastMonthsDeliveryOrder(months)
+	// months := c.Param("months")
+	orders := getPastMonthsDeliveryOrder()
 
 	monthlyOrdersMap := make(map[string]int) // map monthYear to total number of orders in that month
 	monthlyStopsMap := make(map[string]int) // map monthYear to total number of stops in that month
@@ -291,8 +292,8 @@ func averagePastNMonthsNumberOfStops(c *gin.Context){
 func main() {
 
 	router := gin.Default()
-	router.GET("/api/orders/multistops/:months", pastNMonths)
-	router.GET("/api/orders/multistops/average/:months", averagePastNMonthsNumberOfStops)
+	router.GET("/api/orders/multistops/", pastNMonths)
+	router.GET("/api/orders/multistops/average/", averagePastNMonthsNumberOfStops)
 	router.Run("localhost:5000")
 
  }
