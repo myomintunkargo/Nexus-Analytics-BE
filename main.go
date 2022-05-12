@@ -118,141 +118,52 @@ func dbConnection() []deliveryOrder{
 
 var allRows = dbConnection()
 
-func contains (s []int, finder int) bool {
-	for _, v := range s{
-		if v == finder{
-			return true
-		}
+// Get the number of months between firstDate and secondDate
+func monthDifference(firstDate, secondDate time.Time) (month int) {
+	if firstDate.Location() != secondDate.Location() {
+		secondDate = secondDate.In(firstDate.Location())
 	}
 
-	return false
-}
+	y1, M1, _ := firstDate.Date()
+	y2, M2, _ := secondDate.Date()
 
-func handleJulyOnwards(month, year int, order *deliveryOrder) bool{
-	queryYear := year
-	queryMonths := []int{month-6, month-5, month-4, month-3, month-2, month-1} //assumed to be 6 for now
-	if order.Year == queryYear && contains(queryMonths, order.Month){
-		return true
-	}
-	return false
-}
+	year := int(y2 - y1)
+	month = int(M2 - M1)
 
-func handleJune(month, year int, order *deliveryOrder) bool{
-	queryYear := year
-	queryMonths := []int{month-5, month-4, month-3, month-2, month-1} //assumed to be 6 for now
-	queryPastYearMonths := []int{12}
-	if (order.Year == queryYear && contains(queryMonths, order.Month)) || (order.Year == year-1 && contains(queryPastYearMonths, order.Month)){
-		return true
-	}
-	return false
-}
 
-func handleMay(month, year int, order *deliveryOrder) bool{
-	queryYear := year
-	queryMonths := []int{month-4, month-3, month-2, month-1} //assumed to be 6 for now
-	queryPastYearMonths := []int{12, 11}
-	
-
-	if (order.Year == queryYear && contains(queryMonths, order.Month)) || (order.Year == year-1 && contains(queryPastYearMonths, order.Month)){
-		return true
+	// Normalize negative values
+	for year > 0{
+		month += 12
+		year--
 	}
 
-	return false
-}
-
-func handleApril(month, year int, order *deliveryOrder) bool{
-	queryYear := year
-	queryMonths := []int{month-3, month-2, month-1} //assumed to be 6 for now
-	queryPastYearMonths := []int{12, 11, 10}
-	if (order.Year == queryYear && contains(queryMonths, order.Month)) || (order.Year == year-1 && contains(queryPastYearMonths, order.Month)){
-		return true
-	}
-	return false
-}
-
-func handleMarch(month, year int, order *deliveryOrder) bool{
-	queryYear := year
-	queryMonths := []int{month-2, month-1} //assumed to be 6 for now
-	queryPastYearMonths := []int{12, 11, 10, 9}
-	if (order.Year == queryYear && contains(queryMonths, order.Month)) || (order.Year == year-1 && contains(queryPastYearMonths, order.Month)){
-		return true
-	}
-	return false
-}
-
-func handleFebruary(month, year int, order *deliveryOrder) bool{
-	queryYear := year
-	queryMonths := []int{month-1} //assumed to be 6 for now
-	queryPastYearMonths := []int{12, 11, 10, 9, 8}
-	if (order.Year == queryYear && contains(queryMonths, order.Month)) || (order.Year == year-1 && contains(queryPastYearMonths, order.Month)){
-		return true
-	}
-	return false
-}
-
-func handleJanuary(month, year int, order *deliveryOrder) bool{
-	queryYear := year
-	queryMonths := []int{} //assumed to be 6 for now
-	queryPastYearMonths := []int{12, 11, 10, 9, 8, 7}
-	// Check for  current year's corresponding month orders and previous year's corresponding orders 
-	if (order.Year == queryYear && contains(queryMonths, order.Month)) || (order.Year == year-1 && contains(queryPastYearMonths, order.Month)){
-		return true
-	}
-	return false
+	return
 }
 
 //function to retrieve all orders from past N months -- for now only assumed past 6 months
 func getPastMonthsDeliveryOrder(monthsPlaceholder string)  (requiredOrders []deliveryOrder){
 
-	// months, _ := strconv.Atoi(monthsPlaceholder)
-	t := time.Now()
-	year := t.Year()   // type int
-	mthPlaceholder := t.Month() // type time.Month
-	month := int(mthPlaceholder) // convert to type int
+	numMonths, _ := strconv.Atoi(monthsPlaceholder)
+	today := time.Now()
+	today = time.Date(today.Year(), today.Month(), 1, 1, 1, 1, 1, time.Local)
 
-	julToDec := []int{7,8,9,10,11,12}
+	for _, order := range allRows{
 
-	for i, order := range allRows{
-		
-		if contains(julToDec, month){ // handle logic from july to december
-			if handleJulyOnwards(month, year, &order){
-				requiredOrders = append(requiredOrders, allRows[i])
-			}
-		} else if month == 6{
-			if handleJune(month, year, &order){
-				requiredOrders = append(requiredOrders, allRows[i])
-			}
-		} else if month == 5{
-
-			if handleMay(month, year, &order){
-				requiredOrders = append(requiredOrders, allRows[i])
-			}
-		} else if month == 4{
-			if handleApril(month, year, &order){
-				requiredOrders = append(requiredOrders, allRows[i])
-			}
-		} else if month == 3{
-			if handleMarch(month, year, &order){
-				requiredOrders = append(requiredOrders, allRows[i])
-			}
-		} else if month == 2{
-			if handleFebruary(month, year, &order){
-				requiredOrders = append(requiredOrders, allRows[i])
-			}
-		} else if month == 1{
-			if handleJanuary(month, year, &order){
-				requiredOrders = append(requiredOrders, allRows[i])
-			}
-		}		
+		orderDate := time.Date(order.Year, time.Month(order.Month), 1, 1, 1, 1, 1, time.Local) //convert the order date into Date struct
+		monthsApart := monthDifference(orderDate , today)
+		if monthsApart <= numMonths{
+			requiredOrders = append(requiredOrders, order)
 		}
-		return
-		
-	}
 
+	}		
+	return
+}
+
+	
 //GET request function to retrieve number of orders from past N months -- for now only assumed past 6 months
 func pastNMonths(c *gin.Context){
-	// months := c.Param("months")
-	orders:= getPastMonthsDeliveryOrder("months")
+	months := c.Param("months")
+	orders:= getPastMonthsDeliveryOrder(months)
 
 	monthlyOrdersMap := make(map[string]int) // map monthYear to total number of orders in that month
 
@@ -268,16 +179,16 @@ func pastNMonths(c *gin.Context){
 
 //GET request function to retrieve average stops of all orders from past N months -- for now only assumed past 6 months
 func averagePastNMonthsNumberOfStops(c *gin.Context){ 
-	// months := c.Param("months")
-	orders := getPastMonthsDeliveryOrder("months")
+	months := c.Param("months")
+	orders := getPastMonthsDeliveryOrder(months)
 
 	monthlyOrdersMap := make(map[string]int) // map monthYear to total number of orders in that month
 	monthlyStopsMap := make(map[string]int) // map monthYear to total number of stops in that month
 	averageStopsMap := make(map[string]float32) //average per month
 
 	for _, order := range orders{
-		var monthYearRepresentation = fmt.Sprintf("%v-%v", order.Month, order.Year)
-		var monthYearOrders = fmt.Sprintf("%v", monthYearRepresentation)
+		var monthYearRepresentation = fmt.Sprintf("%v-%v", order.Month, order.Year) // represent dates as month-year
+		var monthYearOrders = fmt.Sprintf("%v", monthYearRepresentation) 
 		var monthYearStops = fmt.Sprintf("%v", monthYearRepresentation)
 		monthlyOrdersMap[monthYearOrders] += 1
 		numberOfStops, _ := strconv.Atoi(order.NumStops)
@@ -285,6 +196,7 @@ func averagePastNMonthsNumberOfStops(c *gin.Context){
 	}
 
 	for monthYear := range monthlyOrdersMap{
+
 		averageStopsMap[monthYear] = float32(monthlyStopsMap[monthYear]) /float32(monthlyOrdersMap[monthYear])
 	}
 
@@ -293,9 +205,10 @@ func averagePastNMonthsNumberOfStops(c *gin.Context){
 
 func main() {
 
+	// getPastMonthsDeliveryOrder("5")
 	router := gin.Default()
-	router.GET("/api/orders/multistops/", pastNMonths)
-	router.GET("/api/orders/multistops/average/", averagePastNMonthsNumberOfStops)
+	router.GET("/api/orders/multistops/:months", pastNMonths)
+	router.GET("/api/orders/multistops/average/:months", averagePastNMonthsNumberOfStops)
 	router.Run("localhost:5000")
 
  }
