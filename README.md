@@ -13,35 +13,39 @@ Dependencies Used:
 
 ## Api Endpoints 
  
-### GET total number of DOs in past *6 months*
-* **URL** : /api/orders/multistops/ - 
+### GET total number of DOs in past *N months* AND current month
+* **URL** : /api/orders/multistops/:n - 
 * **Method** :  `GET`
-* **Required Params** : None
+* **Required Params** : n (number of past months)
+* **Sample Input: 6**
 * **Sample Response** :
 ```    
-    { 
-    "1-2022": 936, 
-    "11-2021": 1029, 
-    "12-2021": 785, 
-    "2-2022": 1391, 
-    "3-2022": 2424, 
-    "4-2022": 10475 
-    } 
+{
+    "1-2022": 936,
+    "11-2021": 1029,
+    "12-2021": 785,
+    "2-2022": 1391,
+    "3-2022": 2424,
+    "4-2022": 10473,
+    "5-2022": 442
+}
  ```
     
-### GET average number of stops per DO in past *6 months*
-* **URL** : /api/orders/multistops/average/ - 
+### GET average number of stops per DO in past *N months* AND current month
+* **URL** : /api/orders/multistops/average/:n - 
 * **Method** : `GET`
-* **Required Params**: None
+* **Required Params**: n (number of past months)
+* **Sample Input: 6**
 * **Sample Response** :
 ```
-{ 
-    "1-2022": 3.474359, 
-    "11-2021": 2.1788144, 
-    "12-2021": 2.2917197, 
-    "2-2022": 7.311287, 
-    "3-2022": 16.955858, 
-    "4-2022": 4.1030073 
+{
+    "1-2022": 3.474359,
+    "11-2021": 2.1788144,
+    "12-2021": 2.2917197,
+    "2-2022": 7.311287,
+    "3-2022": 16.955858,
+    "4-2022": 4.103409,
+    "5-2022": 2.1040723
 }
 ```
 
