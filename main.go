@@ -4,14 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-
-	"net/http"
 
 	_ "github.com/lib/pq"
 )
@@ -203,10 +203,18 @@ func averagePastNMonthsNumberOfStops(c *gin.Context){
 	c.IndentedJSON(http.StatusOK, averageStopsMap)
 }
 
+
 func main() {
 
 	// getPastMonthsDeliveryOrder("5")
 	router := gin.Default()
+
+    router.Use(cors.New(cors.Config{
+        AllowOrigins: []string{"*"},
+        AllowMethods: []string{"GET"},
+        AllowHeaders: []string{"Content-Type,access-control-allow-origin, access-control-allow-headers"},
+    }))
+
 	router.GET("/api/orders/multistops/:months", pastNMonths)
 	router.GET("/api/orders/multistops/average/:months", averagePastNMonthsNumberOfStops)
 	router.Run("localhost:5000")
