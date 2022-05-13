@@ -141,7 +141,7 @@ func monthDifference(firstDate, secondDate time.Time) (month int) {
 }
 
 //function to retrieve all orders from past N months -- for now only assumed past 6 months
-func getPastMonthsDeliveryOrder(monthsPlaceholder string)  (requiredOrders []deliveryOrder){
+func getPastMonthsDeliveryOrder()  (requiredOrders []deliveryOrder){
 
 	numMonths, _ := strconv.Atoi(monthsPlaceholder)
 	today := time.Now()
@@ -162,8 +162,8 @@ func getPastMonthsDeliveryOrder(monthsPlaceholder string)  (requiredOrders []del
 	
 //GET request function to retrieve number of orders from past N months -- for now only assumed past 6 months
 func pastNMonths(c *gin.Context){
-	months := c.Param("months")
-	orders:= getPastMonthsDeliveryOrder(months)
+	// months := c.Param("months")
+	orders:= getPastMonthsDeliveryOrder()
 
 	monthlyOrdersMap := make(map[string]int) // map monthYear to total number of orders in that month
 
@@ -179,8 +179,8 @@ func pastNMonths(c *gin.Context){
 
 //GET request function to retrieve average stops of all orders from past N months -- for now only assumed past 6 months
 func averagePastNMonthsNumberOfStops(c *gin.Context){ 
-	months := c.Param("months")
-	orders := getPastMonthsDeliveryOrder(months)
+	// months := c.Param("months")
+	orders := getPastMonthsDeliveryOrder()
 
 	monthlyOrdersMap := make(map[string]int) // map monthYear to total number of orders in that month
 	monthlyStopsMap := make(map[string]int) // map monthYear to total number of stops in that month
